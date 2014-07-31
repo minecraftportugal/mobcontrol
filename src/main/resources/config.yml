@@ -1,0 +1,17 @@
+debug: false
+
+worlds:
+
+  default:
+    rate: 1 
+    include:
+    exclude:
+      
+  world:
+    base:
+      active: true
+      rate: 0.1
+      include: ALL
+      exclude:
+      chunks:
+        - {x: 0, z: 30}
