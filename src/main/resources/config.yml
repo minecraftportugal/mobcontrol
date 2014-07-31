@@ -14,4 +14,4 @@ worlds:
       include: ALL
       exclude:
       chunks:
-        - {x: 0, z: 30}
+      - {x: 0, z: 30}

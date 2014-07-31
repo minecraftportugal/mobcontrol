@@ -3,6 +3,7 @@ package pt.minecraft.mobcontrol;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
@@ -17,6 +18,12 @@ public class GroupDescriptorProvider {
 	
 	private static class ChunkLocation {
 		int x,z;
+		
+		public ChunkLocation(int x, int z)
+		{
+			this.x = x;
+			this.z = z;
+		}
 
 //		@Override
 //		public boolean equals(Object o)
@@ -247,12 +254,28 @@ public class GroupDescriptorProvider {
 			descr.incAll = true;
 		}
 		
-		descr.incList = parseMobList( section.getStringList("exclude"), true);
+		descr.excList = parseMobList( section.getStringList("exclude"), true);
 		
+
+		List<Map<?, ?>> chunks =  section.getMapList("chunks");
 		
-		//TODO:
-		//ConfigurationSection chunks = section.getConfigurationSection("chunks");
-		
+		if( chunks != null )
+		{
+			ArrayList<ChunkLocation> locs = new ArrayList<ChunkLocation>();
+			
+			for(Map<?, ?> map: chunks)
+			{
+				Object x = map.get("x"),
+					   z = map.get("z");
+				
+				if(     x != null && x instanceof Integer
+					&&  z != null && z instanceof Integer )
+					locs.add(new ChunkLocation((int)x, (int)z));
+			}
+			
+			if( locs.size() > 0 )
+				descr.chunks = locs;
+		}
 		
 		return descr;
 	}

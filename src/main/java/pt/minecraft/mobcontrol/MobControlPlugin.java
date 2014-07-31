@@ -18,7 +18,7 @@ public class MobControlPlugin extends JavaPlugin {
 	{
 		this.saveDefaultConfig();
 		this.reloadConfig();
-		this.saveConfig();
+		//this.saveConfig();
 		
 		Utils.setDebug(this.getConfig().getBoolean("debug", false));
 		
