@@ -12,6 +12,7 @@ public class MobControlPlugin extends JavaPlugin {
 	
 	private GroupDescriptorProvider provider = null;
 	private MobSpawnListener listener = null;
+	private MobSpawnProfiler profiler = null;
 	
 	@Override
 	public void onEnable()
@@ -30,6 +31,8 @@ public class MobControlPlugin extends JavaPlugin {
 			listener = new MobSpawnListener(this);
 		
 			this.getServer().getPluginManager().registerEvents(listener, this);
+			
+			this.getCommand(MobControlCommandExecutor.COMMAND_FAMILY).setExecutor(new MobControlCommandExecutor(this));
 		}
 		else
 		{
@@ -50,12 +53,23 @@ public class MobControlPlugin extends JavaPlugin {
 		HandlerList.unregisterAll(this);
 	}
 	
+
 	
-	
-	
+	public MobSpawnProfiler getProfilerInstance()
+	{
+		return this.getProfilerInstance(false);
+	}
+	public MobSpawnProfiler getProfilerInstance(boolean forceNew)
+	{
+		if( this.profiler == null || forceNew )
+			this.profiler = new MobSpawnProfiler();
+		
+		return this.profiler;
+	}
 	
 	public GroupDescriptorProvider getGroupDescriptorProvider()
 	{
 		return provider;
 	}
+	
 }

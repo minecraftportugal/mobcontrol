@@ -52,6 +52,7 @@ public class MobSpawnListener implements Listener {
 			double rate;
 			boolean cancel = false;
 			EntityType type = event.getEntityType();
+			MobSpawnProfiler profiler = plugin.getProfilerInstance();
 			
 			if(     loc != null
 				&& (chunk = loc.getChunk()) != null )
@@ -63,18 +64,23 @@ public class MobSpawnListener implements Listener {
 				
 				else
 				if( rate < 1.0 )
-				{
-					if( randomGen.nextDouble() > rate )
-						cancel = true;
-				}
+					cancel = ( randomGen.nextDouble() > rate );
 				
 				if( cancel )
 					event.setCancelled( true );
-	
+				
+				if( profiler.isValid() )
+				{
+					if( cancel )
+						profiler.incPreventedMobSpawn(chunk.getWorld());
+					else
+						profiler.addMobSpawn(chunk.getX(), chunk.getZ(), chunk.getWorld(), type);
+				}
+
 				if( Utils.isDebug() )
-					Utils.debug("Entity: '%s' on chunk[%s, %d, %d] with rate: %f, cancelled: %s",
+					Utils.debug("Entity: '%s' on chunk[%s, %d, %d] found on group: '%s' with rate: %f, cancelled: %s",
 								type.toString(), chunk.getWorld().getName(),
-								chunk.getX(), chunk.getZ(), rate, ( cancel ? "yes" : "no" ) );
+								chunk.getX(), chunk.getZ(), provider.getLastIdent(), rate, ( cancel ? "yes" : "no" ) );
 			}
 			
 			break;

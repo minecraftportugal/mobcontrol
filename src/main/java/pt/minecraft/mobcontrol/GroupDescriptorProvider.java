@@ -16,25 +16,33 @@ public class GroupDescriptorProvider {
 	
 	
 	
-	private static class ChunkLocation {
-		int x,z;
+	public static final class ChunkLocation {
+		long x,z;
 		
-		public ChunkLocation(int x, int z)
+		public ChunkLocation(long x, long z)
 		{
 			this.x = x;
 			this.z = z;
 		}
 
-//		@Override
-//		public boolean equals(Object o)
-//		{
-//			if(     o == null
-//				|| !(o instanceof ChunkLocation ) )
-//				return false;
-//			
-//			return (    this.x == ((ChunkLocation)o).x
-//					 && this.z == ((ChunkLocation)o).z );
-//		}
+		@Override
+		public boolean equals(Object o)
+		{
+			if(     o == null
+				|| !(o instanceof ChunkLocation ) )
+				return false;
+			
+			return (    this.x == ((ChunkLocation)o).x
+					 && this.z == ((ChunkLocation)o).z );
+		}
+		
+		@Override
+		public int hashCode()
+		{
+			final long mult = 37L;
+			
+			return (int) (x * mult + z);
+		}
 	}
 	
 	
@@ -63,7 +71,7 @@ public class GroupDescriptorProvider {
 		}
 		
 		
-		public boolean insideGroup(int chunkX, int chunkZ, EntityType type)
+		public boolean insideGroup(long chunkX, long chunkZ, EntityType type)
 		{
 			
 			// If there is a chunk list, this chunk must be listed
@@ -112,7 +120,7 @@ public class GroupDescriptorProvider {
 	
 	private GroupDescriptor defaultDescr = null;
 	private HashMap<String, ArrayList<GroupDescriptor>> descriptorList = new HashMap<String, ArrayList<GroupDescriptor>>();
-	
+	private String lastIdent = null;
 	
 	
 	
@@ -270,7 +278,9 @@ public class GroupDescriptorProvider {
 				
 				if(     x != null && x instanceof Integer
 					&&  z != null && z instanceof Integer )
-					locs.add(new ChunkLocation((int)x, (int)z));
+					locs.add(new ChunkLocation(
+										new Long((Integer)x),
+										new Long((Integer)z)) );
 			}
 			
 			if( locs.size() > 0 )
@@ -329,7 +339,7 @@ public class GroupDescriptorProvider {
 	}
 	
 	
-	public double getRate(int chunkX, int chunkZ, World world, EntityType type)
+	public double getRate(long chunkX, long chunkZ, World world, EntityType type)
 	{
 		if( type != null )
 		{
@@ -364,21 +374,30 @@ public class GroupDescriptorProvider {
 				}
 			}
 			
+			if( Utils.isDebug() )
+				this.lastIdent = foundGroup == null ? null : foundGroup.ident ;
+			
 			if( foundGroup != null )
 			{
-				if( Utils.isDebug() )
-					Utils.debug("Entity: '%s' on chunk[%s, %d, %d] found on group: '%s' with rate: %f",
-						   type.toString(), world.getName(), chunkX, chunkZ, foundGroup.ident, foundGroup.rate );
+//				if( Utils.isDebug() )
+//					Utils.debug("Entity: '%s' on chunk[%s, %d, %d] found on group: '%s' with rate: %f",
+//						   type.toString(), world.getName(), chunkX, chunkZ, foundGroup.ident, foundGroup.rate );
 				
 				return foundGroup.rate;
 			}
 			
-			if( Utils.isDebug() )
-				Utils.debug("Entity: '%s' on chunk[%s, %d, %d] not found on any group",
-					   type.toString(), world.getName(), chunkX, chunkZ );
+//			if( Utils.isDebug() )
+//				Utils.debug("Entity: '%s' on chunk[%s, %d, %d] not found on any group",
+//					   type.toString(), world.getName(), chunkX, chunkZ );
 		}
 		
 		return 1.0;
+	}
+	
+	
+	public String getLastIdent()
+	{
+		return lastIdent;
 	}
 
 }
