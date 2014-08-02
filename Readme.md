@@ -66,21 +66,21 @@ worlds:
 
 Rules are applied on a world basis, from the bottom to the top of the list, until one is matched. If none is matched, the `default` rule is applied.
 
-The `default` rule should have a rate of `1` because the minecraft server will always try to have a stable amount of mobs on a certain radius of the player, decreasing it will only make the server overstress the mob spawning algorithm. For the same reason, you should not disable mob spawning at all on a big blob of chunks.
+The `default` rule should have a rate of *1* because the minecraft server will always try to have a stable amount of mobs on a certain radius of the player, decreasing it will only make the server overstress the mob spawning algorithm. For the same reason, you should not disable mob spawning at all on a big blob of chunks.
 
 Rules on each world must have a different name.
 
 In the `worlds` sections of the configuration, you need to list the name of the worlds.
 
-* **`active`**: a rule can be enabled or disabled by setting this to `true` or `false`, omitting it is the same as setting to true.
+* **`active`**: a rule can be enabled or disabled by setting this to *true* or *false*, omitting it is the same as setting to true.
 
-* **`rate`**: A value between `0.0` and `1.0`, being the probability of a natural mob spawn event to succeed.
+* **`rate`**: A value between *0.0* and *1.0*, being the probability of a natural mob spawn event to succeed.
   
   A value of *0.0* will disable all mob spawns matched by the rule.
 
 * **`include`**: A list of mob names to be matched against the rule.
 
-  Leaving it empty, or using the `ALL` keyword, matches the rule against all mobs.
+  Leaving it empty, or using the *ALL* keyword, matches the rule against all mobs.
 
   Mob names are found here http://jd.bukkit.org/dev/apidocs/org/bukkit/entity/EntityType.html. Only *living* entities will be processed by this plugin.
 
