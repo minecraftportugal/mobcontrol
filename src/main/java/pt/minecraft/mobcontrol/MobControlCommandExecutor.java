@@ -1,5 +1,6 @@
 package pt.minecraft.mobcontrol;
 
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -106,44 +107,39 @@ public class MobControlCommandExecutor implements CommandExecutor {
 						
 						Utils.sendMessage("{DARKGREEN}Profiler restarted.", sender);
 					}
+					
+					else
+					if( doWhat.equals("chunk") )
+					{
+						wasValid = true;
+						
+						if( sender instanceof Player )
+						{
+							World world = ((Player)sender).getWorld();
+							Location loc = ((Player)sender).getLocation();
+							
+							if( world != null && loc != null )
+								Utils.sendMessage(String.format("{BRIGHTGREEN}You are in chunk:{GOLD} %d{BRIGHTGREEN},{GOLD} %d{BRIGHTGREEN}, on world:{GOLD} %s",
+										loc.getChunk().getX(), loc.getChunk().getZ(), world.getName()), sender);
+						}
+						else
+							Utils.sendMessage("{RED}You cannot use this command from the console.", sender);
+					}
+					
+					else
+					if( doWhat.equals("report") )
+					{
+						_processReport(null, profiler, sender);
+						wasValid = true;
+					}
 				}
 				else
 				if( args.length <= 2 )
 				{
 					if( doWhat.equals("report") )
 					{
+						_processReport(args[1], profiler, sender);
 						wasValid = true;
-						
-						
-						World world = null;
-						
-						if( args.length == 2 )
-							world = plugin.getServer().getWorld(args[1]);
-						
-						else
-						{
-							if( sender instanceof Player )
-								world = ((Player)sender).getWorld();
-						}
-						
-						if( world == null )
-						{
-							Utils.sendMessage("{RED}Please provider world name.", sender);
-							return true;
-						}
-							
-						synchronized(rtMutex)
-						{
-							if( activeReportThread != null )
-							{
-								Utils.sendMessage("{RED}There is a report already being built. Please wait.", sender);
-								return true;
-							}
-							
-							activeReportThread = new ReportThread(profiler, sender, world);
-							activeReportThread.start();
-						}
-
 					}
 				}
 				
@@ -156,6 +152,49 @@ public class MobControlCommandExecutor implements CommandExecutor {
 			}
 		}
 		return wasValid;
+	}
+
+	private void _processReport(String worldName, MobSpawnProfiler profiler, CommandSender sender)
+	{
+		
+		World world = null;
+		
+		if( worldName != null )
+			world = plugin.getServer().getWorld(worldName);
+		
+		else
+		{
+			if( sender instanceof Player )
+			{
+				world = ((Player)sender).getWorld();
+				
+				if( Utils.isDebug() )
+				{
+					Location loc = ((Player)sender).getLocation();
+					if( loc != null )
+						Utils.debug("User '%s' asked for a report on world: '%s', C.Pos: %d, %d", sender.getName(), world.getName(), loc.getChunk().getX(), loc.getChunk().getZ());
+				}
+			}
+		}
+		
+		if( world == null )
+		{
+			Utils.sendMessage("{RED}Please provider world name.", sender);
+			return;
+		}
+			
+		synchronized(rtMutex)
+		{
+			if( activeReportThread != null )
+			{
+				Utils.sendMessage("{RED}There is a report already being built. Please wait.", sender);
+				return;
+			}
+			
+			activeReportThread = new ReportThread(profiler, sender, world);
+			activeReportThread.start();
+		}
+
 	}
 
 }

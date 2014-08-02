@@ -5,7 +5,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map.Entry;
+import java.util.concurrent.Callable;
 
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
@@ -17,6 +19,12 @@ import pt.minecraft.mobcontrol.MobControlCommandExecutor.ReportEndCallback;
 
 public class MobSpawnProfiler {
 	
+	
+	/**
+	 * 
+	 *
+	 */
+	
 	public class MobSpawnProfilerException extends Exception
 	{
 		private static final long serialVersionUID = -1321308266169251285L;
@@ -26,6 +34,12 @@ public class MobSpawnProfiler {
 			super(msg);
 		}
 	}
+	
+	
+	/**
+	 * 
+	 *
+	 */
 	
 	private static class Pair<K,V> {
 		K k;
@@ -37,12 +51,20 @@ public class MobSpawnProfiler {
 		}
 	}
 	
+	/**
+	 * 
+	 *
+	 */
+	
 	private static class ChunkInfo implements Comparable<ChunkInfo>
 	{
 		ChunkLocation cLoc = null;
 		EntityMap eMap = null;
 		long totalSpawns = 0;
 		LinkedList<Pair<EntityType, Long>> mostCommon = new LinkedList<Pair<EntityType, Long>>();
+		
+		double neighbours = 0;
+		long meanDiv = 0;
 		
 		
 		@Override
@@ -51,7 +73,12 @@ public class MobSpawnProfiler {
 			if( o == null )
 				return -Integer.MIN_VALUE;
 			
-			return (int) (o.totalSpawns - this.totalSpawns);
+			//return (int) (o.totalSpawns - this.totalSpawns);
+			//return (int) (o.neighborMean - this.neighborMean);
+			return
+				( o.neighbours == this.neighbours ) ? 0
+						: ( ( o.neighbours > this.neighbours ) ? 1 : - 1 );
+						
 			
 //			if( this.totalSpawns > o.totalSpawns )
 //				return -1;
@@ -62,6 +89,11 @@ public class MobSpawnProfiler {
 //			return 0;
 		}
 	}
+	
+	/**
+	 * 
+	 *
+	 */
 	
 	private static class EntityMap extends HashMap<EntityType, Long>
 	{
@@ -93,6 +125,15 @@ public class MobSpawnProfiler {
 	}
 	
 	
+	
+	
+	
+	/**
+	 * 
+	 *
+	 */
+	
+	
 	private boolean running = false;
 
 	private HashMap<String, Long> preventedMap = new HashMap<String, Long>();
@@ -103,6 +144,8 @@ public class MobSpawnProfiler {
 	
 	private static final int MAXIMUM_ENTITY_MOST_LIST = 3;
 	private static final int REPORT_CHUNK_PAGE_SIZE = 10;
+	private static final int REPORT_CHUNK_MOB_DESCRIPTION_SIZE = 2;
+	
 	
 	
 	public boolean isValid()
@@ -258,6 +301,48 @@ public class MobSpawnProfiler {
 								cInfo.mostCommon.removeLast();
 						}
 					}
+					
+				}
+				
+				ChunkInfo c1,c2;
+				double dist;
+				
+				for(int i = 0; i < cacheList.size(); i++)
+				{
+					c1 = cacheList.get(i);
+					
+					if(    c1 == null
+						|| c1.cLoc == null )
+						continue;
+					
+					for(int y = i+1; y < cacheList.size(); y++)
+					{
+						c2 = cacheList.get(y);
+
+						if(     c2 == null
+							 || c2.cLoc == null )
+							continue;
+						
+						dist = c1.cLoc.distance(c2.cLoc);
+						
+						if( (int)dist == 1 )
+						{
+							//System.out.println(String.format("c1[%d,%d], c1[%d,%d], dist: %f", c1.cLoc.x, c1.cLoc.z, c2.cLoc.x, c2.cLoc.z, dist));
+							c1.neighbours += c2.totalSpawns;
+							c2.neighbours += c1.totalSpawns;
+							
+							c1.meanDiv++;
+							c2.meanDiv++;
+						}
+					}
+					
+					if( c1.meanDiv > 0 )
+						c1.neighbours = (c1.neighbours / (double)c1.meanDiv)/2.0;
+					
+					
+					c1.neighbours += c1.totalSpawns;
+					//cInfo.meanDiv = 1;
+					//c1.neighbours /= 9.0;
 				}
 				
 				Collections.sort(cacheList);
@@ -281,12 +366,13 @@ public class MobSpawnProfiler {
 		final boolean _success = success; 
 		final String _worldName = worldName;
 		final long _totalSpawns = totalSpawns;
-			
-		(new BukkitRunnable() {	
-			
+		
+		
+		Bukkit.getScheduler().callSyncMethod(plugin, new Callable<Void>() {
+
 			@Override
-			public void run() {
-				
+			public Void call() throws Exception
+			{
 				if( !_success )
 					Utils.sendMessage(String.format("{RED}Report Error: world '%s' was not found", _worldName), sender);
 				
@@ -294,7 +380,8 @@ public class MobSpawnProfiler {
 				{
 					ChunkInfo cInfo;
 					
-					Utils.sendMessage(String.format("{YELLOW}[MP-Report] {BRIGHTGREEN}Elapsed time:{GOLD} %.2f{BRIGHTGREEN}, Spawned Mobs: {GOLD}%d{BRIGHTGREEN}, prevented: {GOLD}%d", _totalElapsed/1000.0, _totalSpawns, _totalPrevented), sender);
+					Utils.sendMessage(String.format("{YELLOW}[MP-Report] {BRIGHTGREEN}Elapsed time:{GOLD} %.2f{BRIGHTGREEN}, Spawned Mobs: {GOLD}%d{BRIGHTGREEN},"
+													+ " Prevented: {GOLD}%d", _totalElapsed/1000.0, _totalSpawns, _totalPrevented), sender);
 					
 					for(int i = 0; i < cacheList.size() && i < REPORT_CHUNK_PAGE_SIZE; i++)
 					{
@@ -302,12 +389,29 @@ public class MobSpawnProfiler {
 						
 						if( cInfo == null )
 							continue;
+						
+						StringBuilder sb = new StringBuilder("");
+						int maxIter = Math.min(cInfo.mostCommon.size(), REPORT_CHUNK_MOB_DESCRIPTION_SIZE);
+						
+						for(int y = 0; y < maxIter; y++)
+						{
+							sb.append(cInfo.mostCommon.get(y).k.toString());
+							sb.append(": ");
+							sb.append(cInfo.mostCommon.get(y).v);
+							
+							if( (y+1) < maxIter )
+								sb.append(", ");
+						}
 								
-						Utils.sendMessage(String.format("{YELLOW}[MP-Report] {GOLD}%d{BRIGHTGREEN}. T. Spawns: {GOLD}%d {BRIGHTGREEN}Chunk Pos: {GOLD}%d{BRIGHTGREEN}, {GOLD}%d", i+1, cInfo.totalSpawns, cInfo.cLoc.x, cInfo.cLoc.z), sender);
+						Utils.sendMessage(String.format("{YELLOW}[MP-Rep] {GOLD}%d{BRIGHTGREEN}. Neighb: {GOLD}%.1f{BRIGHTGREEN}, "
+								+ "Spawns: {GOLD}%d {BRIGHTGREEN}, Pos: {GOLD}%d{BRIGHTGREEN}, {GOLD}%d {BRIGHTGREEN}[{GOLD}%s{BRIGHTGREEN}]",
+								i+1, cInfo.neighbours, cInfo.totalSpawns, cInfo.cLoc.x, cInfo.cLoc.z, sb.toString()), sender);
 					}
 				}
+				
+				return null;
 			}
-		}).runTask(plugin);
+		});
 
 	}
 

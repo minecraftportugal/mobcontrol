@@ -24,6 +24,18 @@ public class GroupDescriptorProvider {
 			this.x = x;
 			this.z = z;
 		}
+		
+		public double distance(ChunkLocation cLock)
+		{
+			if( cLock == null )
+				return -1;
+			
+			long xx = this.x - cLock.x,
+				 yy = this.z - cLock.z;
+					
+			return Math.sqrt( xx*xx + yy*yy );
+		}
+		
 
 		@Override
 		public boolean equals(Object o)
