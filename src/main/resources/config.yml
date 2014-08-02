@@ -11,9 +11,18 @@ worlds:
       
   world:
     base:
-      active: true
-      rate: 0.1
+      active: false
+      rate: 0.9
       include: ALL
       exclude:
       chunks:
       - {x: 0, z: 30}
+      
+    example_rule_1:
+      active: false
+      rate: 0.5
+      include:
+      exclude:
+      - BAT
+      chunks:
+      - {x: 0, z: 0}

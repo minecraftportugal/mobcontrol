@@ -1,6 +1,5 @@
 package pt.minecraft.mobcontrol;
 
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 

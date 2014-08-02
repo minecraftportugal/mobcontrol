@@ -51,6 +51,7 @@ public class MobControlCommandExecutor implements CommandExecutor {
 	
 	
 	public static final String COMMAND_FAMILY = "mobprofiler";
+	public static final String PROFILER_PERMISSION = "mobcontrol.profile";
 	private ReportThread activeReportThread = null;
 	private final Object rtMutex = new Object();
 	
@@ -70,6 +71,20 @@ public class MobControlCommandExecutor implements CommandExecutor {
 		if(    plugin != null
 			&& cmd.getName().equals(COMMAND_FAMILY) )
 		{
+			if(     sender instanceof Player
+				&& !sender.hasPermission(PROFILER_PERMISSION) )
+			{
+				Utils.sendMessage("{RED}You don't have permission to use this command!", sender);
+				
+				return true;
+			}
+			
+			
+			if(args.length == 0)
+				return false;
+			
+
+				
 			String doWhat = args[0].trim().toLowerCase();
 			MobSpawnProfiler profiler = plugin.getProfilerInstance();
 			

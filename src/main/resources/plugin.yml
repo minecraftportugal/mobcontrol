@@ -1,9 +1,11 @@
 name: MobControl
 main: pt.minecraft.mobcontrol.MobControlPlugin
-version: 0.0.1
+version: 0.1.0
 description: Limit mob spawning on a chunk basis
 author: [disco]
 commands:
    mobprofiler:
       description: This command profiles mob spawn events.
       usage: /<command> (start|stop|reset|clean|chunk|report [world])
+      permission: <plugin name>.profile
+      permission-message: You don't have permission to use this command!
