@@ -1,6 +1,6 @@
 name: MobControl
 main: pt.minecraft.mobcontrol.MobControlPlugin
-version: 0.1.0
+version: 0.1.1
 description: Limit mob spawning on a chunk basis
 author: [disco]
 commands:
