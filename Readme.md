@@ -96,7 +96,7 @@ Profiling allows you to identify chunks with abnormal amounts of mob spawn that 
 
 * **/mobprofiler start**: starts the profiler. All posterior mob spawn events will be registered by the profiler.
 * **/mobprofiler stop**: Stops the profiler from registering new mob spawn events.
-* **/mobprofiler clean**: Cleans all profiler data. Should always be called when you're done with profiling to clean the unecessary gathered data.
+* **/mobprofiler clean**: Cleans all profiler data. Should always be called when you're done with profiling to clean the unnecessary gathered data.
 * **/mobprofiler reset**: Cleans and restarts the profiler.
 * **/mobprofiler chunk**: Shows the chunk number where the user who uses this command is. Cannot be used from the console.
-* **/mobprofiler report [world]**: Builds and shows a report with all the data the profiler has gathered. If used by a player inside the game and no world is passed as second argument, it will show a report for the user's current world. When used in the console, a world name must alwyas be passed.
+* **/mobprofiler report [world]**: Builds and shows a report with all the data the profiler has gathered. If used by a player inside the game and no world is passed as second argument, it will show a report for the user's current world. When used in the console, a world name must always be passed.
