@@ -91,7 +91,6 @@ public class MobControlCommandExecutor implements CommandExecutor {
 					else
 					if( doWhat.equals("stop") )
 					{
-						
 						wasValid = true;
 						profiler.stop();
 						
@@ -99,9 +98,20 @@ public class MobControlCommandExecutor implements CommandExecutor {
 					}
 					
 					else
+					if( doWhat.equals("clean") )
+					{
+						wasValid = true;
+						profiler.clean();
+						profiler = plugin.getProfilerInstance(true);
+						
+						Utils.sendMessage("{DARKGREEN}Profiler cleaned.", sender);
+					}
+					
+					else
 					if( doWhat.equals("reset") )
 					{
 						wasValid = true;
+						profiler.clean();
 						profiler = plugin.getProfilerInstance(true);
 						profiler.start();
 						

@@ -1,4 +1,6 @@
 debug: false
+reportSize: 10
+mostCommonMobsSize: 3
 
 worlds:
 

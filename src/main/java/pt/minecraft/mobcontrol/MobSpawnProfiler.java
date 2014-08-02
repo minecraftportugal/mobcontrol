@@ -136,15 +136,26 @@ public class MobSpawnProfiler {
 	
 	private boolean running = false;
 
+	//private MobControlPlugin plugin = null;
+	
 	private HashMap<String, Long> preventedMap = new HashMap<String, Long>();
 	private long timeStart = 0;
 	private long elapsedTime = 0;
 	private HashMap<String, HashMap<ChunkLocation, EntityMap>>
 						worldMap = new HashMap<String, HashMap<ChunkLocation, EntityMap>>();
 	
-	private static final int MAXIMUM_ENTITY_MOST_LIST = 3;
-	private static final int REPORT_CHUNK_PAGE_SIZE = 10;
-	private static final int REPORT_CHUNK_MOB_DESCRIPTION_SIZE = 2;
+	private final int MAXIMUM_ENTITY_MOST_LIST;
+	private final int REPORT_CHUNK_PAGE_SIZE;
+	//private static final int REPORT_CHUNK_MOB_DESCRIPTION_SIZE = 2;
+	
+	
+	public MobSpawnProfiler(MobControlPlugin plugin)
+	{
+		//this.plugin = plugin;
+		
+		MAXIMUM_ENTITY_MOST_LIST = plugin.getConfig().getInt("reportSize", 10);
+		REPORT_CHUNK_PAGE_SIZE = plugin.getConfig().getInt("mostCommonMobsSize", 2);
+	}
 	
 	
 	
@@ -173,6 +184,15 @@ public class MobSpawnProfiler {
 		
 		running = false;
 		elapsedTime = System.currentTimeMillis() - timeStart;
+	}
+	
+	public void clean()
+	{
+		running = false;
+		timeStart = 0;
+		elapsedTime = 0;
+		preventedMap.clear();
+		worldMap.clear();
 	}
 	
 	
@@ -391,7 +411,7 @@ public class MobSpawnProfiler {
 							continue;
 						
 						StringBuilder sb = new StringBuilder("");
-						int maxIter = Math.min(cInfo.mostCommon.size(), REPORT_CHUNK_MOB_DESCRIPTION_SIZE);
+						int maxIter = Math.min(cInfo.mostCommon.size(), MAXIMUM_ENTITY_MOST_LIST);
 						
 						for(int y = 0; y < maxIter; y++)
 						{

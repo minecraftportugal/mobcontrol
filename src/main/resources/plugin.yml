@@ -6,4 +6,4 @@ author: [disco]
 commands:
    mobprofiler:
       description: This command profiles mob spawn events.
-      usage: /<command> (start|stop|reset|chunk|report [world])
+      usage: /<command> (start|stop|reset|clean|chunk|report [world])

@@ -1,5 +1,6 @@
 package pt.minecraft.mobcontrol;
 
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -62,7 +63,7 @@ public class MobControlPlugin extends JavaPlugin {
 	public MobSpawnProfiler getProfilerInstance(boolean forceNew)
 	{
 		if( this.profiler == null || forceNew )
-			this.profiler = new MobSpawnProfiler();
+			this.profiler = new MobSpawnProfiler(this);
 		
 		return this.profiler;
 	}
