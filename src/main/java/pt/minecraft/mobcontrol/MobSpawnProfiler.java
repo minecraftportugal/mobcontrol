@@ -12,7 +12,6 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import pt.minecraft.mobcontrol.GroupDescriptorProvider.ChunkLocation;
 import pt.minecraft.mobcontrol.MobControlCommandExecutor.ReportEndCallback;
@@ -208,7 +207,7 @@ public class MobSpawnProfiler {
 	}
 	
 	
-	public void addMobSpawn(long chunkX, long chunkZ, World world, EntityType type)
+	public void addMobSpawn(int chunkX, int chunkZ, World world, EntityType type)
 	{
 		if(    !running
 			|| world == null )

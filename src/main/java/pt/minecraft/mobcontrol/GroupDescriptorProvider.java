@@ -17,9 +17,9 @@ public class GroupDescriptorProvider {
 	
 	
 	public static final class ChunkLocation {
-		long x,z;
+		int x,z;
 		
-		public ChunkLocation(long x, long z)
+		public ChunkLocation(int x, int z)
 		{
 			this.x = x;
 			this.z = z;
@@ -83,7 +83,7 @@ public class GroupDescriptorProvider {
 		}
 		
 		
-		public boolean insideGroup(long chunkX, long chunkZ, EntityType type)
+		public boolean insideGroup(int chunkX, int chunkZ, EntityType type)
 		{
 			
 			// If there is a chunk list, this chunk must be listed
@@ -146,7 +146,7 @@ public class GroupDescriptorProvider {
 	{
 		if( config == null )
 			return null;
-		
+
 		ConfigurationSection worlds = config.getConfigurationSection("worlds"),
 				             world;
 		
@@ -290,9 +290,7 @@ public class GroupDescriptorProvider {
 				
 				if(     x != null && x instanceof Integer
 					&&  z != null && z instanceof Integer )
-					locs.add(new ChunkLocation(
-										new Long((Integer)x),
-										new Long((Integer)z)) );
+					locs.add(new ChunkLocation((int)x, (int)z) );
 			}
 			
 			if( locs.size() > 0 )
@@ -318,7 +316,7 @@ public class GroupDescriptorProvider {
 			mob = mob.trim().toUpperCase();
 			
 			if(    !ignoreAllKeyword
-				&& mob.equals("ALL") )
+				&& mob.equalsIgnoreCase("ALL") )
 				return null;
 			
 			else
@@ -351,7 +349,7 @@ public class GroupDescriptorProvider {
 	}
 	
 	
-	public double getRate(long chunkX, long chunkZ, World world, EntityType type)
+	public double getRate(int chunkX, int chunkZ, World world, EntityType type)
 	{
 		if( type != null )
 		{
